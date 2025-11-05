@@ -46,11 +46,14 @@ jobs:
       
       - name: Create ZIP archive of HTML report
         run: |
-          cd report
-          zip -r ../archimate-html-report.zip .
-          cd ..
-          echo "Archive created: archimate-html-report.zip"
-          ls -lh archimate-html-report.zip
+          if [ -d "report" ] && [ "$(ls -A report)" ]; then
+            zip -r archimate-html-report.zip report/
+            echo "Archive created: archimate-html-report.zip"
+            ls -lh archimate-html-report.zip
+          else
+            echo "Error: Report directory is empty or doesn't exist"
+            exit 1
+          fi
       
       - name: Create GitHub Release
         id: create_release
