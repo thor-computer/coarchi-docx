@@ -8,7 +8,7 @@ echo [COMMAND PROMPT] Installing Python dependencies
 python -m pip install -r requirements.txt
 
 echo [COMMAND PROMPT] Running py.py
-python py.py
+python py.py --document md.md
 
 echo [COMMAND PROMPT] Deactivating virtual environment
 deactivate
