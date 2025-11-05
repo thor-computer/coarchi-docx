@@ -30,7 +30,7 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}:/data" \
             ghcr.io/woozymasta/archimate-ci-image:latest \
-            --modelrepository.loadModel /data/model \
+            --import.folder /data/model \
             --html.createReport /data/report
       
       - name: Verify HTML report was created
