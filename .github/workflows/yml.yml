@@ -26,11 +26,12 @@ jobs:
           echo "Generated release name: ${RELEASE_NAME}"
       
       - name: Export Archimate model to HTML
-        uses: docker://ghcr.io/woozymasta/archimate-ci-image:latest
-        with:
-          args: >
-            --modelrepository.loadModel model
-            --html.createReport report
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/data" \
+            ghcr.io/woozymasta/archimate-ci-image:latest \
+            --modelrepository.loadModel /data/model \
+            --html.createReport /data/report
       
       - name: Verify HTML report was created
         run: |
