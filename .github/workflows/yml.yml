@@ -17,7 +17,7 @@ jobs:
       - name: Read model repository URL from config
         id: config
         run: |
-          MODEL_REPO_URL=$(grep 'model_repository_url:' config.yml | sed 's/.*: *//')
+          MODEL_REPO_URL=$(grep 'model_repository_url:' config.yml | cut -d' ' -f2-)
           echo "url=${MODEL_REPO_URL}" >> $GITHUB_OUTPUT
           echo "Model repository URL: ${MODEL_REPO_URL}"
       
