@@ -14,6 +14,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Clone external model repository
+        run: |
+          echo "Cloning model repository..."
+          git clone https://github.com/WoozyMasta/archimate-ci-image-example.git temp-model-repo
+          echo "Copying model folder..."
+          cp -r temp-model-repo/model ./model
+          echo "Cleaning up..."
+          rm -rf temp-model-repo
+          echo "Model folder ready:"
+          ls -la model/
+      
       - name: Generate release tag and name
         id: release_info
         run: |
