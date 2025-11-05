@@ -1,0 +1,4 @@
+# Configuration for Archimate Model Export
+# Update the model_repository_url to point to your coArchi model repository
+
+model_repository_url: https://github.com/WoozyMasta/archimate-ci-image-example.git
