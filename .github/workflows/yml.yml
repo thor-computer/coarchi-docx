@@ -14,10 +14,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Read model repository URL from config
+        id: config
+        run: |
+          MODEL_REPO_URL=$(grep 'model_repository_url:' config.yml | sed 's/.*: *//')
+          echo "url=${MODEL_REPO_URL}" >> $GITHUB_OUTPUT
+          echo "Model repository URL: ${MODEL_REPO_URL}"
+      
       - name: Clone external model repository
         run: |
-          echo "Cloning model repository..."
-          git clone https://github.com/WoozyMasta/archimate-ci-image-example.git temp-model-repo
+          echo "Cloning model repository from ${{ steps.config.outputs.url }}..."
+          git clone ${{ steps.config.outputs.url }} temp-model-repo
           echo "Copying model folder..."
           cp -r temp-model-repo/model ./model
           echo "Cleaning up..."
