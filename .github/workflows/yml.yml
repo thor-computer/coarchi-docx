@@ -1,0 +1,83 @@
+name: Export Archimate Model to HTML
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  export-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Generate release tag and name
+        id: release_info
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          RELEASE_TAG="report-${TIMESTAMP}"
+          RELEASE_NAME="HTML Report - ${TIMESTAMP}"
+          echo "tag=${RELEASE_TAG}" >> $GITHUB_OUTPUT
+          echo "name=${RELEASE_NAME}" >> $GITHUB_OUTPUT
+          echo "Generated release tag: ${RELEASE_TAG}"
+          echo "Generated release name: ${RELEASE_NAME}"
+      
+      - name: Export Archimate model to HTML
+        uses: docker://ghcr.io/woozymasta/archimate-ci-image:latest
+        with:
+          args: >
+            --modelrepository.loadModel model
+            --html.createReport report
+      
+      - name: Verify HTML report was created
+        run: |
+          echo "Checking if report directory exists..."
+          ls -la
+          if [ -d "report" ]; then
+            echo "Report directory found!"
+            ls -la report/
+          else
+            echo "Error: Report directory not found"
+            exit 1
+          fi
+      
+      - name: Create ZIP archive of HTML report
+        run: |
+          cd report
+          zip -r ../archimate-html-report.zip .
+          cd ..
+          echo "Archive created: archimate-html-report.zip"
+          ls -lh archimate-html-report.zip
+      
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.release_info.outputs.tag }}
+          release_name: ${{ steps.release_info.outputs.name }}
+          body: |
+            ## Archimate HTML Report
+            
+            This release contains the HTML export of the Archimate model.
+            
+            **Generated:** ${{ github.event.repository.updated_at }}
+            **Commit:** ${{ github.sha }}
+            
+            Download and extract the ZIP file to view the HTML report.
+          draft: false
+          prerelease: false
+      
+      - name: Upload HTML Report to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./archimate-html-report.zip
+          asset_name: archimate-html-report.zip
+          asset_content_type: application/zip
